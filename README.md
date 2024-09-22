@@ -88,31 +88,38 @@ aws ec2 create-route \
   --destination-cidr-block 0.0.0.0/0 \
   --gateway-id <IGW_ID>
 ```
-4.3. Associate the public route table with public subnets:
+4.3. Retrieve the subnets IDs:
+```bash
+aws ec2 describe-subnets \
+	--filters "Name=vpc-id,Values=<VPC_ID>" \
+	--query "Subnets[*].SubnetId" \
+	--output text
+```
+4.4. Associate the public route table with public subnets:
 ```bash
 aws ec2 associate-route-table --subnet-id <PUBLIC_SUBNET_1_ID> --route-table-id <PUBLIC_RT_ID> 
 aws ec2 associate-route-table --subnet-id <PUBLIC_SUBNET_2_ID> --route-table-id <PUBLIC_RT_ID>
 ```
-4.4. Create a route table for private subnets:
+4.5. Create a route table for private subnets:
 ```bash
 aws ec2 create-route-table \
   --vpc-id <VPC_ID> \
   --tag-specifications 'ResourceType=route-table,Tags=[{Key=Name,Value=Private Route Table}]'
 ```
-4.5. Create a NAT gateway in the public subnet (Availability Zone A):
+4.6. Create a NAT gateway in the public subnet (Availability Zone A):
 ```bash
 aws ec2 create-nat-gateway \
   --subnet-id <PUBLIC_SUBNET_1_ID> \
   --allocation-id <ELASTIC_IP_ID>
 ```
-4.6. Create a route to the NAT gateway for the private route table:
+4.7. Create a route to the NAT gateway for the private route table:
 ```bash
 aws ec2 create-route \
   --route-table-id <PRIVATE_RT_ID> \
   --destination-cidr-block 0.0.0.0/0 \
   --nat-gateway-id <NAT_GW_ID>
 ```
-4.7. Associate the private route table with private subnets:
+4.8. Associate the private route table with private subnets:
 ```bash
 aws ec2 associate-route-table --subnet-id <PRIVATE_SUBNET_1_ID> --route-table-id <PRIVATE_RT_ID> 
 aws ec2 associate-route-table --subnet-id <PRIVATE_SUBNET_2_ID> --route-table-id <PRIVATE_RT_ID>
