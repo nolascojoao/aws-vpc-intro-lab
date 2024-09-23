@@ -162,7 +162,11 @@ aws ec2 run-instances \
 	--subnet-id <PUBLIC_SUBNET_2_ID> \
 	--user-data file://install-webserver.sh
 ```
-5.4. Associate Elastic IP to the EC2 instance:
+5.4. Allocate a new Elastic IP to your Account:
+```bash
+aws ec2 allocate-address --domain vpc
+```
+5.5. Associate Elastic IP to the EC2 instance:
 ```bash
 aws ec2 associate-address \
 	--instance-id <INSTANCE_ID> \
@@ -171,14 +175,14 @@ aws ec2 associate-address \
 Content of `install-webserver.sh`:
 ```bash
 #!/bin/bash
-#Install Apache Web Server and PHP
-yum install -y httpd mysql php
-#Download Lab files
-wget https://aws-tc-largeobjects.s3.us-west-2.amazonaws.com/CUR-TF-100-RESTRT-1/267-lab-NF-build-vpc-web-server/s3/lab-app.zip
-unzip lab-app.zip -d /var/www/html/
-#Turn on web server
-chkconfig httpd on
-service httpd start
+# Installs the Apache web server            
+yum -y install httpd
+# Configures httpd to start on boot      
+systemctl enable httpd
+# Starts the httpd service now    
+systemctl start httpd
+# Creates an HTML homepage
+echo '<html><h1>Hello From Your Web Server!</h1></html>' > /var/www/html/index.html 
 ```
 ## Step 6 - Test the Web Server
 Open a web browser and enter the Elastic IP address of the instance. You should see the web server's default page.
