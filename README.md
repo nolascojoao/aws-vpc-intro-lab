@@ -118,7 +118,7 @@ aws ec2 create-route-table \
 	--vpc-id <VPC_ID> \
 	--tag-specifications 'ResourceType=route-table,Tags=[{Key=Name,Value=Private Route Table}]'
 ```
-4.6. Create an Elastic IP:
+4.6. Allocate an Elastic IP to your Account:
 ```bash
 aws ec2 allocate-address --domain vpc
 ```
