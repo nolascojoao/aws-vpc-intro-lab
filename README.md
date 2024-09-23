@@ -26,74 +26,85 @@ aws ec2 create-vpc \
 	--cidr-block 10.0.0.0/16 \
 	--tag-specifications 'ResourceType=vpc,Tags=[{Key=Name,Value=LabVPC}]'
 ```
-1.2. Note the VPC ID returned in the output.
+Note the VPC ID returned in the output.
 
+1.2. To check the status of the VPC:
+```bash
+aws ec2 describe-vpcs --vpc-ids <VPC_ID> --query "Vpcs[*].State"
+```
 ## Step 2 - Create Subnets
-2.1. Create a public subnet in Availability Zone A:
+2.1. To list Availability Zones:
+```bash
+aws ec2 describe-availability-zones --query "AvailabilityZones[*].ZoneName" --output text
+```
+2.2. Create a public subnet in Availability Zone A:
 ```bash
 aws ec2 create-subnet \
 	--vpc-id <VPC_ID> \
 	--cidr-block 10.0.0.0/24 \
-  --availability-zone <AZ_A> \
-  --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=Public Subnet 1}]'
+  	--availability-zone <AZ_A> \
+  	--tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=Public Subnet 1}]'
 ```
-2.2. Create a private subnet in Availability Zone A:
+2.3. Create a private subnet in Availability Zone A:
 ```bash
 aws ec2 create-subnet \
-  --vpc-id <VPC_ID> \
-  --cidr-block 10.0.1.0/24 \
-  --availability-zone <AZ_A> \
-  --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=Private Subnet 1}]'
+	--vpc-id <VPC_ID> \
+	--cidr-block 10.0.1.0/24 \
+	--availability-zone <AZ_A> \
+	--tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=Private Subnet 1}]'
 ```
-2.3. Create a public subnet in Availability Zone B:
+2.4. Create a public subnet in Availability Zone B:
 ```bash
 aws ec2 create-subnet \
-  --vpc-id <VPC_ID> \
-  --cidr-block 10.0.2.0/24 \
-  --availability-zone <AZ_B> \
-  --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=Public Subnet 2}]'
+	--vpc-id <VPC_ID> \
+	--cidr-block 10.0.2.0/24 \
+	--availability-zone <AZ_B> \
+	--tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=Public Subnet 2}]'
 ```
-2.4. Create a private subnet in Availability Zone B:
+2.5. Create a private subnet in Availability Zone B:
 ```bash
 aws ec2 create-subnet \
-  --vpc-id <VPC_ID> \
-  --cidr-block 10.0.3.0/24 \
-  --availability-zone <AZ_B> \
-  --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=Private Subnet 2}]'
+	--vpc-id <VPC_ID> \
+	--cidr-block 10.0.3.0/24 \
+	--availability-zone <AZ_B> \
+	--tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=Private Subnet 2}]'
 ```
 ## Step 3 - Create an Internet Gateway and Attach it to the VPC
 3.1. Create the Internet Gateway:
 ```bash
 aws ec2 create-internet-gateway \
-  --tag-specifications 'ResourceType=internet-gateway,Tags=[{Key=Name,Value=LabIGW}]'
+	--tag-specifications 'ResourceType=internet-gateway,Tags=[{Key=Name,Value=LabIGW}]'
 ```
 3.2. Attach the Internet Gateway to the VPC:
 ```bash
 aws ec2 attach-internet-gateway \
-  --vpc-id <VPC_ID> \
-  --internet-gateway-id <IGW_ID>
+	--vpc-id <VPC_ID> \
+	--internet-gateway-id <IGW_ID>
 ```
-
+3.3. To verify the Internet Gateway status:
+```bash
+aws ec2 describe-internet-gateways --internet-gateway-ids <IGW_ID> --query "InternetGateways[*].Attachments"
+```
 ## Step 4: Create Route Tables and Routes
 4.1. Create a route table for public subnets:
 ```bash
 aws ec2 create-route-table \
-  --vpc-id <VPC_ID> \
-  --tag-specifications 'ResourceType=route-table,Tags=[{Key=Name,Value=Public Route Table}]'
+	--vpc-id <VPC_ID> \
+	--tag-specifications 'ResourceType=route-table,Tags=[{Key=Name,Value=Public Route Table}]'
 ```
 4.2. Create a route to the Internet Gateway for the public route table:
 ```bash
 aws ec2 create-route \
-  --route-table-id <PUBLIC_RT_ID> \
-  --destination-cidr-block 0.0.0.0/0 \
-  --gateway-id <IGW_ID>
+	--route-table-id <PUBLIC_RT_ID> \
+	--destination-cidr-block 0.0.0.0/0 \
+	--gateway-id <IGW_ID>
 ```
 4.3. Retrieve the subnets IDs:
 ```bash
 aws ec2 describe-subnets \
-	--filters "Name=vpc-id,Values=<VPC_ID>" \
-	--query "Subnets[*].SubnetId" \
-	--output text
+	--filters "Name=vpc-id,Values=VPC_ID" \
+	--query "Subnets[*].[SubnetId, Tags[?Key=='Name'].Value | [0]]" \
+	--output table
 ```
 4.4. Associate the public route table with public subnets:
 ```bash
@@ -103,21 +114,21 @@ aws ec2 associate-route-table --subnet-id <PUBLIC_SUBNET_2_ID> --route-table-id 
 4.5. Create a route table for private subnets:
 ```bash
 aws ec2 create-route-table \
-  --vpc-id <VPC_ID> \
-  --tag-specifications 'ResourceType=route-table,Tags=[{Key=Name,Value=Private Route Table}]'
+	--vpc-id <VPC_ID> \
+	--tag-specifications 'ResourceType=route-table,Tags=[{Key=Name,Value=Private Route Table}]'
 ```
-4.6. Create a NAT gateway in the public subnet (Availability Zone A):
+4.6. Create a NAT gateway in the public subnet (Availability Zone A): 
 ```bash
 aws ec2 create-nat-gateway \
-  --subnet-id <PUBLIC_SUBNET_1_ID> \
-  --allocation-id <ELASTIC_IP_ID>
+	--subnet-id <PUBLIC_SUBNET_1_ID> \
+	--allocation-id <ELASTIC_IP_ID>
 ```
-4.7. Create a route to the NAT gateway for the private route table:
+4.7. Create a route to the NAT gateway for the private route table: 
 ```bash
 aws ec2 create-route \
-  --route-table-id <PRIVATE_RT_ID> \
-  --destination-cidr-block 0.0.0.0/0 \
-  --nat-gateway-id <NAT_GW_ID>
+	--route-table-id <PRIVATE_RT_ID> \
+	--destination-cidr-block 0.0.0.0/0 \
+	--nat-gateway-id <NAT_GW_ID>
 ```
 4.8. Associate the private route table with private subnets:
 ```bash
@@ -129,9 +140,9 @@ aws ec2 associate-route-table --subnet-id <PRIVATE_SUBNET_2_ID> --route-table-id
 5.1. Create a security group for the web server:
 ```bash
 aws ec2 create-security-group \
-  --group-name web-server-sg \
-  --description "Web Server Security Group" \
-  --vpc-id <VPC_ID>
+	--group-name web-server-sg \
+	--description "Web Server Security Group" \
+	--vpc-id <VPC_ID>
 ```
 5.2. Allow inbound traffic on port 80 (HTTP):
 ```bash
@@ -140,11 +151,11 @@ aws ec2 authorize-security-group-ingress --group-id <SG_ID> --protocol tcp --por
 5.3. Launch the web server instance in Public Subnet 2:
 ```bash
 aws ec2 run-instances \
-  --image-id <AMI_ID> \
-  --instance-type t2.micro \
-  --security-group-ids <SG_ID> \
-  --subnet-id <PUBLIC_SUBNET_2_ID> \
-  --user-data file://install-webserver.sh
+	--image-id <AMI_ID> \
+	--instance-type t2.micro \
+	--security-group-ids <SG_ID> \
+	--subnet-id <PUBLIC_SUBNET_2_ID> \
+	--user-data file://install-webserver.sh
 ```
 Content of `install-webserver.sh`:
 ```bash
