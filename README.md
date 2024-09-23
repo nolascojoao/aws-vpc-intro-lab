@@ -11,7 +11,8 @@ This lab provides a guide to:
 - Setting up a NAT Gateway for private subnet internet access
 - Configuring security groups for web server traffic
 - Launching an EC2 instance with Apache Web Server in a public subnet
-- Terminating the instance
+- Associate Elastic IP to the EC2 instance
+- Terminating the instance and deallocating resources to avoid charges
 ---  
 ⚠️ **Attention**: 
 1. All the tasks will be completed via the command line using AWS CLI. [AWS CLI Install](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
@@ -117,20 +118,24 @@ aws ec2 create-route-table \
 	--vpc-id <VPC_ID> \
 	--tag-specifications 'ResourceType=route-table,Tags=[{Key=Name,Value=Private Route Table}]'
 ```
-4.6. Create a NAT gateway in the public subnet (Availability Zone A): 
+4.6. Create an Elastic IP:
+```bash
+aws ec2 allocate-address --domain vpc
+```
+4.7. Create a NAT gateway in the public subnet (Availability Zone A): 
 ```bash
 aws ec2 create-nat-gateway \
 	--subnet-id <PUBLIC_SUBNET_1_ID> \
 	--allocation-id <ELASTIC_IP_ID>
 ```
-4.7. Create a route to the NAT gateway for the private route table: 
+4.8. Create a route to the NAT gateway for the private route table: 
 ```bash
 aws ec2 create-route \
 	--route-table-id <PRIVATE_RT_ID> \
 	--destination-cidr-block 0.0.0.0/0 \
 	--nat-gateway-id <NAT_GW_ID>
 ```
-4.8. Associate the private route table with private subnets:
+4.9. Associate the private route table with private subnets:
 ```bash
 aws ec2 associate-route-table --subnet-id <PRIVATE_SUBNET_1_ID> --route-table-id <PRIVATE_RT_ID> 
 aws ec2 associate-route-table --subnet-id <PRIVATE_SUBNET_2_ID> --route-table-id <PRIVATE_RT_ID>
@@ -157,6 +162,12 @@ aws ec2 run-instances \
 	--subnet-id <PUBLIC_SUBNET_2_ID> \
 	--user-data file://install-webserver.sh
 ```
+5.4. Associate Elastic IP to the EC2 instance:
+```bash
+aws ec2 associate-address \
+	--instance-id <INSTANCE_ID> \
+	--allocation-id <ELASTIC_IP_ID>
+```
 Content of `install-webserver.sh`:
 ```bash
 #!/bin/bash
@@ -170,5 +181,5 @@ chkconfig httpd on
 service httpd start
 ```
 ## Step 6 - Test the Web Server
-To test, open a web browser and enter the public IP address of the instance. You should see the web server's default page.
+Open a web browser and enter the Elastic IP address of the instance. You should see the web server's default page.
 
