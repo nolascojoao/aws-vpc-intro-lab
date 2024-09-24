@@ -21,9 +21,8 @@ This Lab covers the following steps:
 
 ---  
 ⚠️ **Attention**: 
-1. All the tasks will be completed via the command line using AWS CLI. [AWS CLI Install](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
-2. Please be aware that charges may apply while completing this lab. [AWS Pricing](https://aws.amazon.com/pricing/)
-
+- All the tasks will be completed via the command line using AWS CLI. Ensure you have the necessary permissions. [Install AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+- Charges may apply for completing this lab. [AWS Pricing](https://aws.amazon.com/pricing/)
 ---
 
 ## Step 1 - VPC Creation
