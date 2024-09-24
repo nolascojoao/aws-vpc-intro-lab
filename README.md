@@ -33,9 +33,10 @@ aws ec2 create-vpc \
 	--cidr-block 10.0.0.0/16 \
 	--tag-specifications 'ResourceType=vpc,Tags=[{Key=Name,Value=LabVPC}]'
 ```
-Save the VPC ID returned in the output.
+Copy the VPC ID for further use.
 
 #### 1.2. To check the status of the VPC:
+replace `<VPC_ID>` with your VPC ID value
 ```bash
 aws ec2 describe-vpcs --vpc-ids <VPC_ID> --query "Vpcs[*].State"
 ```
@@ -50,6 +51,7 @@ aws ec2 describe-vpcs --vpc-ids <VPC_ID> --query "Vpcs[*].State"
 aws ec2 describe-availability-zones --query "AvailabilityZones[*].ZoneName" --output text
 ```
 #### 2.2. Create a public subnet in Availability Zone A:
+replace `<VPC_ID>` with your VPC ID value and `<AZ_A>` with the name of AvailabilityZone A
 ```bash
 aws ec2 create-subnet \
 	--vpc-id <VPC_ID> \
@@ -58,6 +60,7 @@ aws ec2 create-subnet \
   	--tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=Public Subnet 1}]'
 ```
 #### 2.3. Create a private subnet in Availability Zone A:
+replace `<VPC_ID>` with your VPC ID value and `<AZ_A>` with the name of AvailabilityZone A
 ```bash
 aws ec2 create-subnet \
 	--vpc-id <VPC_ID> \
@@ -71,6 +74,7 @@ aws ec2 create-subnet \
 </div>
 
 #### 2.4. Create a public subnet in Availability Zone B:
+replace `<VPC_ID>` with your VPC ID value and `<AZ_B>` with the name of AvailabilityZone B
 ```bash
 aws ec2 create-subnet \
 	--vpc-id <VPC_ID> \
@@ -79,6 +83,7 @@ aws ec2 create-subnet \
 	--tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=Public Subnet 2}]'
 ```
 #### 2.5. Create a private subnet in Availability Zone B:
+replace `<VPC_ID>` with your VPC ID value and `<AZ_B>` with the name of AvailabilityZone B
 ```bash
 aws ec2 create-subnet \
 	--vpc-id <VPC_ID> \
@@ -92,6 +97,7 @@ aws ec2 create-subnet \
 </div>
 
 #### 2.6. Retrieve the subnets IDs:
+replace `VPC_ID` with your VPC ID value
 ```bash
 aws ec2 describe-subnets \
 	--filters "Name=vpc-id,Values=VPC_ID" \
@@ -109,15 +115,18 @@ aws ec2 describe-subnets \
 aws ec2 create-internet-gateway \
 	--tag-specifications 'ResourceType=internet-gateway,Tags=[{Key=Name,Value=LabIGW}]'
 ```
-Save the Internet Gateway ID returned in the output.
+
+Copy the Internet Gateway ID for further use.
 
 #### 3.2. Attach the Internet Gateway to the VPC:
+Replace `<VPC_ID>` with your VPC ID value and `<IGW_ID>` with your Internet Gateway ID
 ```bash
 aws ec2 attach-internet-gateway \
 	--vpc-id <VPC_ID> \
 	--internet-gateway-id <IGW_ID>
 ```
 #### 3.3. To verify the Internet Gateway status:
+Replace `<IGW_ID>` with your Internet Gateway ID
 ```bash
 aws ec2 describe-internet-gateways --internet-gateway-ids <IGW_ID> --query "InternetGateways[*].Attachments"
 ```
@@ -131,20 +140,22 @@ aws ec2 describe-internet-gateways --internet-gateway-ids <IGW_ID> --query "Inte
 ```bash
 aws ec2 allocate-address --domain vpc
 ```
-Save the PublicIp and the AllocationId returned in the output.
+
+Copy the PublicIp and the AllocationId for further use.
 
 <div align="center">
   <img src="screenshot/4.6.PNG"/>
 </div>
 
 #### 4.2. Create a NAT gateway in the public subnet (Availability Zone A):
+Replace `<PUBLIC_SUBNET_1_ID>` with the Public Subnet 1 ID and `<ALLOCATION_ID>` with your Elastic IP Allocation ID
 ```bash
 aws ec2 create-nat-gateway \
 	--subnet-id <PUBLIC_SUBNET_1_ID> \
 	--allocation-id <ALLOCATION_ID>
 ```
 
-Save the NAT gateway ID returned in the output.
+Copy the NAT gateway for further use.
 
 <div align="center">
   <img src="screenshot/4.7.PNG"/>
@@ -152,19 +163,21 @@ Save the NAT gateway ID returned in the output.
 
 ## Step 5 - Route Tables Configuration
 #### 5.1. Create a route table for public subnets:
+Replace `<VPC_ID>` with your VPC ID
 ```bash
 aws ec2 create-route-table \
 	--vpc-id <VPC_ID> \
 	--tag-specifications 'ResourceType=route-table,Tags=[{Key=Name,Value=Public Route Table}]'
 ```
 
-Save the Public Route Table ID returned in the output.
+Copy the Public Route Table ID for further use.
 
 <div align="center">
   <img src="screenshot/4.1.PNG"/>
 </div>
 
 #### 5.2. Create a route to the Internet Gateway for the public route table:
+Replace `<PUBLIC_RT_ID>` with your Route Table ID and `<IGW_ID>` with your Internet Gateway ID
 ```bash
 aws ec2 create-route \
 	--route-table-id <PUBLIC_RT_ID> \
@@ -177,6 +190,7 @@ aws ec2 create-route \
 </div>
 
 #### 5.3. Associate the public route table with public subnets:
+Replace `<PUBLIC_RT_ID>` with your Route Table ID and `<PUBLIC_SUBNET_1_ID>` and `<PUBLIC_SUBNET_2_ID>` with the IDs of your public subnets
 ```bash
 aws ec2 associate-route-table --subnet-id <PUBLIC_SUBNET_1_ID> --route-table-id <PUBLIC_RT_ID> 
 aws ec2 associate-route-table --subnet-id <PUBLIC_SUBNET_2_ID> --route-table-id <PUBLIC_RT_ID>
@@ -187,19 +201,21 @@ aws ec2 associate-route-table --subnet-id <PUBLIC_SUBNET_2_ID> --route-table-id 
 </div>
 
 #### 5.4. Create a route table for private subnets:
+Replace `<VPC_ID>` with your VPC ID
 ```bash
 aws ec2 create-route-table \
 	--vpc-id <VPC_ID> \
 	--tag-specifications 'ResourceType=route-table,Tags=[{Key=Name,Value=Private Route Table}]'
 ```
 
-Save the Private Route Table ID returned in the output.
+Copy the Private Route Table ID for further use.
 
 <div align="center">
   <img src="screenshot/4.5.PNG"/>
 </div>
 
 #### 5.5. Create a route to the NAT gateway for the private route table:
+Replace `<PRIVATE_RT_ID>` with your Private Route Table ID and `<NAT_GW_ID>` with your NAT Gateway ID
 ```bash
 aws ec2 create-route \
 	--route-table-id <PRIVATE_RT_ID> \
@@ -212,6 +228,7 @@ aws ec2 create-route \
 </div>
 
 #### 5.6. Associate the private route table with private subnets:
+Replace `<PUBLIC_RT_ID>` with your Route Table ID and `<PRIVATE_SUBNET_1_ID>` and `<PRIVATE_SUBNET_2_ID>` with the IDs of your public subnets
 ```bash
 aws ec2 associate-route-table --subnet-id <PRIVATE_SUBNET_1_ID> --route-table-id <PRIVATE_RT_ID> 
 aws ec2 associate-route-table --subnet-id <PRIVATE_SUBNET_2_ID> --route-table-id <PRIVATE_RT_ID>
@@ -223,6 +240,7 @@ aws ec2 associate-route-table --subnet-id <PRIVATE_SUBNET_2_ID> --route-table-id
 
 ## Step 6 - Security Groups Configuration
 #### 6.1. Create a security group for the web server:
+Replace `<VPC_ID>` with your VPC ID
 ```bash
 aws ec2 create-security-group \
 	--group-name web-server-sg \
@@ -230,13 +248,14 @@ aws ec2 create-security-group \
 	--vpc-id <VPC_ID>
 ```
 
-Save the Security Group ID returned in the output.
+Copy the Security Group ID for further use.
 
 <div align="center">
   <img src="screenshot/5.1.PNG"/>
 </div>
 
 #### 6.2. Allow inbound traffic on port 80 (HTTP):
+Replace `<SG_ID>` with your Security Group ID
 ```bash
 aws ec2 authorize-security-group-ingress --group-id <SG_ID> --protocol tcp --port 80 --cidr 0.0.0.0/0
 ```
@@ -247,6 +266,7 @@ aws ec2 authorize-security-group-ingress --group-id <SG_ID> --protocol tcp --por
 
 ## Step 7 - Web Server Deployment
 #### 7.1. Launch the web server instance in Public Subnet 2:
+Replace `<AMI_ID>` with your AMI ID (e.g., `ami-0ebfd941bbafe70c6`), `<SG_ID>` with your Security Group ID, and `<PUBLIC_SUBNET_2_ID>` with the ID of Public Subnet 2
 ```bash
 aws ec2 run-instances \
 	--image-id <AMI_ID> \
@@ -257,49 +277,10 @@ aws ec2 run-instances \
 	--user-data file://install-webserver.sh
 ```
 
-Save the ec2 Instance ID returned in the output.
+Copy the ec2 Instance ID for further use.
 
 <div align="center">
   <img src="screenshot/5.3.PNG"/>
-</div>
-
-#### 7.2. Retrieve the instance's IPv4 Public Address and test the web server:
-```bash
-aws ec2 describe-instances --instance-ids <INSTANCE_ID> \
-	--query "Reservations[*].Instances[*].PublicIpAddress" --output text
-```
-
-<div align="center">
-  <img src="screenshot/5.4.PNG"/>
-</div>
-
-#### 7.3. Visit http://<INSTANCE_PUBLIC_IP> to verify the web server is running.
-
-<div align="center">
-  <img src="screenshot/5.5.PNG"/>
-</div>
-
-#### 7.4. Allocate a new Elastic IP to your Account:
-```bash
-aws ec2 allocate-address --domain vpc
-```
-Save the PublicIp and the AllocationId returned in the output.
-
-#### 7.5. Associate the Elastic IP obtained in the last step to the EC2 instance and test the web server:
-```bash
-aws ec2 associate-address \
-	--instance-id <INSTANCE_ID> \
-	--allocation-id <ALLOCATION_ID>
-```
-
-<div align="center">
-  <img src="screenshot/5.6.PNG"/>
-</div>
-
-#### 7.6. Visit http://<INSTANCE_PUBLIC_IP> to verify the web server is running.
-
-<div align="center">
-  <img src="screenshot/5.7.PNG"/>
 </div>
 
 #### Content of `install-webserver.sh`:
@@ -315,8 +296,53 @@ systemctl start httpd
 echo '<html><h1>Hello From Your Web Server!</h1></html>' > /var/www/html/index.html 
 ```
 
+#### 7.2. Retrieve the instance's IPv4 Public Address and test the web server:
+Replace `<INSTANCE_ID>` with your Instance ID
+```bash
+aws ec2 describe-instances --instance-ids <INSTANCE_ID> \
+	--query "Reservations[*].Instances[*].PublicIpAddress" --output text
+```
+
+<div align="center">
+  <img src="screenshot/5.4.PNG"/>
+</div>
+
+#### 7.3. Visit http://<INSTANCE_PUBLIC_IP> to verify the web server is running.
+Replace `<INSTANCE_PUBLIC_IP>` with the public IP address retrieved in the previous step
+
+<div align="center">
+  <img src="screenshot/5.5.PNG"/>
+</div>
+
+#### 7.4. Allocate a new Elastic IP to your Account:
+```bash
+aws ec2 allocate-address --domain vpc
+```
+
+Copy the PublicIp and the AllocationId for further use.
+
+#### 7.5. Associate the Elastic IP obtained in the last step to the EC2 instance and test the web server:
+Replace `<INSTANCE_ID>` with your Instance ID and `<ALLOCATION_ID>` with the Elastic IP Allocation ID
+```bash
+aws ec2 associate-address \
+	--instance-id <INSTANCE_ID> \
+	--allocation-id <ALLOCATION_ID>
+```
+
+<div align="center">
+  <img src="screenshot/5.6.PNG"/>
+</div>
+
+#### 7.6. Visit http://<INSTANCE_PUBLIC_IP> to verify the web server is running.
+Replace `<INSTANCE_PUBLIC_IP>` with the public IP address retrieved in the previous step
+
+<div align="center">
+  <img src="screenshot/5.7.PNG"/>
+</div>
+
 ## Step 8 - Resource Cleanup
 #### 8.1. Terminate the EC2 instance:
+Replace `<INSTANCE_ID>` with your Instance ID
 ```bash
 aws ec2 terminate-instances --instance-ids <INSTANCE_ID>
 ```
@@ -326,6 +352,7 @@ aws ec2 terminate-instances --instance-ids <INSTANCE_ID>
 </div>
 
 #### 8.2. Delete NAT Gateway
+Replace `<NAT_GATEWAY_ID>` with your NAT Gateway ID
 ```bash
 aws ec2 delete-nat-gateway --nat-gateway-id <NAT_GATEWAY_ID>
 ```
@@ -335,21 +362,28 @@ aws ec2 delete-nat-gateway --nat-gateway-id <NAT_GATEWAY_ID>
 </div>
 
 #### 8.3. Detach and Delete Internet Gateway
+Replace `<IGW_ID>` with your Internet Gateway ID and `<VPC_ID>` with your VPC ID
 ```bash
 aws ec2 detach-internet-gateway --internet-gateway-id <IGW_ID> --vpc-id <VPC_ID>
 aws ec2 delete-internet-gateway --internet-gateway-id <IGW_ID>
 ```
 
 #### 8.4. Release the Elastic IP:
+Replace `<ALLOCATION_ID>` with your Elastic IP Allocation ID
 ```bash
 aws ec2 release-address --allocation-id <ALLOCATION_ID>
 ```
 
 #### 8.5. Delete VPC
+
 ```bash
 aws ec2 delete-vpc --vpc-id <VPC_ID>
 ```
-
+Replace `<VPC_ID>` with your VPC ID
 <div align="center">
   <img src="screenshot/6.0.PNG"/>
 </div>
+
+### Conclusion
+
+This AWS VPC Introduction Lab provided a hands-on experience in creating and managing essential AWS components like Virtual Private Clouds (VPCs), subnets, gateways, and security groups. For production environments you can use Bash scripts to automate this process making deployment easier and more consistent.
