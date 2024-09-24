@@ -45,6 +45,8 @@ aws ec2 describe-vpcs --vpc-ids <VPC_ID> --query "Vpcs[*].State"
   <img src="screenshot/1.2.PNG"/>
 </div>
 
+---
+
 ## Step 2 - Subnet Creation
 #### 2.1. To list Availability Zones:
 ```bash
@@ -109,6 +111,8 @@ aws ec2 describe-subnets \
   <img src="screenshot/4.3.PNG"/>
 </div>
 
+---
+
 ## Step 3 - Internet Gateway Setup
 #### 3.1. Create the Internet Gateway:
 ```bash
@@ -135,6 +139,8 @@ aws ec2 describe-internet-gateways --internet-gateway-ids <IGW_ID> --query "Inte
   <img src="screenshot/3.3.PNG"/>
 </div>
 
+---
+
 ## Step 4 - NAT Gateway Setup
 #### 4.1. Allocate an Elastic IP to your Account:
 ```bash
@@ -160,6 +166,8 @@ Copy the NAT gateway for further use.
 <div align="center">
   <img src="screenshot/4.7.PNG"/>
 </div>
+
+---
 
 ## Step 5 - Route Tables Configuration
 #### 5.1. Create a route table for public subnets:
@@ -238,6 +246,8 @@ aws ec2 associate-route-table --subnet-id <PRIVATE_SUBNET_2_ID> --route-table-id
   <img src="screenshot/4.9.PNG"/>
 </div>
 
+---
+
 ## Step 6 - Security Groups Configuration
 #### 6.1. Create a security group for the web server:
 Replace `<VPC_ID>` with your VPC ID
@@ -263,6 +273,8 @@ aws ec2 authorize-security-group-ingress --group-id <SG_ID> --protocol tcp --por
 <div align="center">
   <img src="screenshot/5.2.PNG"/>
 </div>
+
+---
 
 ## Step 7 - Web Server Deployment
 #### 7.1. Launch the web server instance in Public Subnet 2:
@@ -340,6 +352,8 @@ Replace `<INSTANCE_PUBLIC_IP>` with the public IP address retrieved in the previ
   <img src="screenshot/5.7.PNG"/>
 </div>
 
+---
+
 ## Step 8 - Resource Cleanup
 #### 8.1. Terminate the EC2 instance:
 Replace `<INSTANCE_ID>` with your Instance ID
@@ -383,6 +397,8 @@ Replace `<VPC_ID>` with your VPC ID
 <div align="center">
   <img src="screenshot/6.0.PNG"/>
 </div>
+
+---
 
 ### Conclusion
 
