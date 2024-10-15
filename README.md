@@ -361,7 +361,7 @@ aws ec2 terminate-instances --instance-ids <INSTANCE_ID>
 ```
 
 <div align="center">
-  <img src="screenshot/5.8.PNG"/>
+  <img src="screenshot/8.1.PNG"/>
 </div>
 
 #### 8.2. Delete NAT Gateway
@@ -371,34 +371,74 @@ aws ec2 delete-nat-gateway --nat-gateway-id <NAT_GATEWAY_ID>
 ```
 
 <div align="center">
-  <img src="screenshot/5.9.PNG"/>
+  <img src="screenshot/8.2.PNG"/>
 </div>
 
-#### 8.3. Detach and Delete Internet Gateway
+#### 8.3. Delete Security Groups
+Replace `<SECURITY_GROUP_ID>` with your Security Group ID
+```bash
+aws ec2 delete-security-group --group-id <SECURITY_GROUP_ID>
+```
+
+<div align="center">
+  <img src="screenshot/8.3.PNG"/>
+</div>
+
+#### 8.4. Detach and Delete Internet Gateway
 Replace `<IGW_ID>` with your Internet Gateway ID and `<VPC_ID>` with your VPC ID
 ```bash
 aws ec2 detach-internet-gateway --internet-gateway-id <IGW_ID> --vpc-id <VPC_ID>
+```
+```bash
 aws ec2 delete-internet-gateway --internet-gateway-id <IGW_ID>
 ```
 
-#### 8.4. Release the Elastic IP:
+<div align="center">
+  <img src="screenshot/8.4.PNG"/>
+</div>
+
+#### 8.5. Delete subnets:
+Replace `<SUBNET_ID>` with your Subnet ID
+```bash
+aws ec2 delete-subnet --subnet-id <SUBNET_ID>
+```
+
+<div align="center">
+  <img src="screenshot/8.5.PNG"/>
+</div>
+
+#### 8.6. Delete Route Tables
+Replace `<ROUTE_TABLE_ID>` with your Route Table ID
+```bash
+aws ec2 delete-route-table --route-table-id <PRIVATE_ROUTE_TABLE_ID>
+```
+
+<div align="center">
+  <img src="screenshot/8.6.PNG"/>
+</div>
+
+#### 8.7. Release the Elastic IP:
 Replace `<ALLOCATION_ID>` with your Elastic IP Allocation ID
 ```bash
 aws ec2 release-address --allocation-id <ALLOCATION_ID>
 ```
 
-#### 8.5. Delete VPC
+<div align="center">
+  <img src="screenshot/8.7.PNG"/>
+</div>
+
+#### 8.8. Delete VPC
 
 ```bash
 aws ec2 delete-vpc --vpc-id <VPC_ID>
 ```
 Replace `<VPC_ID>` with your VPC ID
 <div align="center">
-  <img src="screenshot/6.0.PNG"/>
+  <img src="screenshot/8.8.PNG"/>
 </div>
 
 ---
 
 ### Conclusion
 
-This AWS VPC Introduction Lab provided a hands-on experience in creating and managing essential AWS components like Virtual Private Clouds (VPCs), subnets, gateways, and security groups. For production environments you can use Bash scripts to automate this process making deployment easier and more consistent.
+This AWS VPC Introduction Lab provided a hands-on experience in creating and managing essential AWS components like Virtual Private Clouds (VPCs), subnets, gateways, and security groups. For production environments you can use ![Bash scripts](/bash) to automate this process making deployment easier and more consistent.
