@@ -61,8 +61,8 @@ Please run the scripts in the following order:
 
 ---
 
-6. **Cleanup Resources:
-- After you have finished using the resources, you can run the cleanup script to delete everything**
+6. **Cleanup Resources**
+- After you have finished using the resources, you can run the cleanup script to delete everything
 ```bash
 ./cleanup.sh
 ```
