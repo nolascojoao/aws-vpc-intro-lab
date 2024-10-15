@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Stop script execution on any error
+set -e
+
 # Step 1 - VPC Creation
 echo "Creating VPC..."
 VPC_ID=$(aws ec2 create-vpc \
@@ -24,7 +27,7 @@ SUBNET_PUBLIC_A=$(aws ec2 create-subnet \
     --vpc-id $VPC_ID \
     --cidr-block 10.0.0.0/24 \
     --availability-zone $AZ_A \
-    --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=Public Subnet 1}]' \
+    --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=PublicSubnet1}]' \
     --query 'Subnet.SubnetId' --output text)
 
 echo "Creating private subnet in Availability Zone A ($AZ_A)..."
@@ -32,7 +35,7 @@ SUBNET_PRIVATE_A=$(aws ec2 create-subnet \
     --vpc-id $VPC_ID \
     --cidr-block 10.0.1.0/24 \
     --availability-zone $AZ_A \
-    --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=Private Subnet 1}]' \
+    --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=PrivateSubnet1}]' \
     --query 'Subnet.SubnetId' --output text)
 
 echo "Creating public subnet in Availability Zone B ($AZ_B)..."
@@ -40,7 +43,7 @@ SUBNET_PUBLIC_B=$(aws ec2 create-subnet \
     --vpc-id $VPC_ID \
     --cidr-block 10.0.2.0/24 \
     --availability-zone $AZ_B \
-    --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=Public Subnet 2}]' \
+    --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=PublicSubnet2}]' \
     --query 'Subnet.SubnetId' --output text)
 
 echo "Creating private subnet in Availability Zone B ($AZ_B)..."
@@ -48,7 +51,7 @@ SUBNET_PRIVATE_B=$(aws ec2 create-subnet \
     --vpc-id $VPC_ID \
     --cidr-block 10.0.3.0/24 \
     --availability-zone $AZ_B \
-    --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=Private Subnet 2}]' \
+    --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=PrivateSubnet2}]' \
     --query 'Subnet.SubnetId' --output text)
 
 # Retrieve the subnet IDs

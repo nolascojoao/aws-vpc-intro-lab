@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Stop script execution on any error
+set -e
+
 # Step 3 - Internet Gateway Setup
 
 # 3.1. Create the Internet Gateway
@@ -10,13 +13,20 @@ IGW_ID=$(aws ec2 create-internet-gateway \
 
 echo "Internet Gateway created with ID: $IGW_ID"
 
-# 3.2. Attach the Internet Gateway to the VPC
+# 3.2. Capture the VPC ID (assuming the VPC has a tag Name=LabVPC)
+VPC_ID=$(aws ec2 describe-vpcs \
+    --filters "Name=tag:Name,Values=LabVPC" \
+    --query "Vpcs[0].VpcId" --output text)
+
+echo "VPC ID: $VPC_ID"
+
+# 3.3. Attach the Internet Gateway to the VPC
 echo "Attaching Internet Gateway to VPC $VPC_ID..."
 aws ec2 attach-internet-gateway \
     --vpc-id $VPC_ID \
     --internet-gateway-id $IGW_ID
 
-# 3.3. Verify the Internet Gateway status
+# 3.4. Verify the Internet Gateway status
 echo "Verifying Internet Gateway status..."
 aws ec2 describe-internet-gateways \
     --internet-gateway-ids $IGW_ID \
@@ -30,7 +40,14 @@ ALLOCATION_ID=$(aws ec2 allocate-address --domain vpc --query 'AllocationId' --o
 
 echo "Elastic IP allocated with ID: $ALLOCATION_ID"
 
-# 4.2. Create NAT Gateway in Public Subnet 1 (AZ A)
+# 4.2. Capture the Public Subnet ID (assuming the Public Subnet has a tag Name=PublicSubnet)
+SUBNET_PUBLIC_A=$(aws ec2 describe-subnets \
+    --filters "Name=tag:Name,Values=PublicSubnet1" \
+    --query "Subnets[0].SubnetId" --output text)
+
+echo "Public Subnet ID: $SUBNET_PUBLIC_A"
+
+# 4.3. Create NAT Gateway in Public Subnet 1 (AZ A)
 echo "Creating NAT Gateway in Public Subnet 1 ($SUBNET_PUBLIC_A)..."
 NAT_GW_ID=$(aws ec2 create-nat-gateway \
     --subnet-id $SUBNET_PUBLIC_A \

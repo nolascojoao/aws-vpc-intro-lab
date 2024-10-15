@@ -1,5 +1,35 @@
 #!/bin/bash
 
+# Stop script execution on any error
+set -e
+
+# Step 1: Retrieve necessary resource IDs
+
+# Retrieve VPC ID
+echo "Retrieving VPC ID..."
+VPC_ID=$(aws ec2 describe-vpcs \
+    --filters "Name=tag:Name,Values=LabVPC" \
+    --query "Vpcs[0].VpcId" --output text)
+echo "VPC ID: $VPC_ID"
+
+# Retrieve Public Subnet 2 ID (AZ B)
+echo "Retrieving Public Subnet 2 ID (AZ B)..."
+SUBNET_PUBLIC_B=$(aws ec2 describe-subnets \
+    --filters "Name=vpc-id,Values=$VPC_ID" "Name=tag:Name,Values=PublicSubnet2" \
+    --query "Subnets[0].SubnetId" --output text)
+echo "Public Subnet 2 ID: $SUBNET_PUBLIC_B"
+
+# Retrieve Security Group ID
+echo "Retrieving Security Group ID for web server..."
+SG_ID=$(aws ec2 describe-security-groups \
+    --filters "Name=vpc-id,Values=$VPC_ID" "Name=group-name,Values=web-server-sg" \
+    --query "SecurityGroups[0].GroupId" --output text)
+echo "Security Group ID: $SG_ID"
+
+# Specify the AMI ID (Ensure this is valid for your region)
+AMI_ID="ami-0ebfd941bbafe70c6"
+echo "Using AMI ID: $AMI_ID"
+
 # Step 7 - Web Server Deployment
 
 # 7.1. Launch the web server instance in Public Subnet 2
@@ -11,6 +41,7 @@ INSTANCE_ID=$(aws ec2 run-instances \
     --security-group-ids $SG_ID \
     --subnet-id $SUBNET_PUBLIC_B \
     --user-data file://install-webserver.sh \
+	--tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=WebServer}]' \
     --query 'Instances[0].InstanceId' --output text)
 
 echo "Instance launched with ID: $INSTANCE_ID"
@@ -25,7 +56,6 @@ PUBLIC_IP=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID \
     --query "Reservations[*].Instances[*].PublicIpAddress" --output text)
 
 echo "Instance Public IP: $PUBLIC_IP"
-echo "You can now test the web server by accessing http://$PUBLIC_IP"
 
 # 7.4. Allocate a new Elastic IP to your account
 echo "Allocating a new Elastic IP..."

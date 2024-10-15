@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# Stop script execution on any error
+set -e
+
+# Step 1: Retrieve VPC ID
+echo "Retrieving VPC ID..."
+VPC_ID=$(aws ec2 describe-vpcs \
+    --filters "Name=tag:Name,Values=LabVPC" \
+    --query "Vpcs[0].VpcId" --output text)
+
+echo "VPC ID: $VPC_ID"
+
 # Step 6 - Security Groups Configuration
 
 # 6.1. Create a security group for the web server

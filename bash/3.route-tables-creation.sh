@@ -1,5 +1,62 @@
 #!/bin/bash
 
+# Stop script execution on any error
+set -e
+
+# Step 1: Retrieve VPC ID
+echo "Retrieving VPC ID..."
+VPC_ID=$(aws ec2 describe-vpcs \
+    --filters "Name=tag:Name,Values=LabVPC" \
+    --query "Vpcs[0].VpcId" --output text)
+
+echo "VPC ID: $VPC_ID"
+
+# Step 2: Retrieve Public Subnet IDs
+echo "Retrieving Public Subnet 1 ID..."
+SUBNET_PUBLIC_A=$(aws ec2 describe-subnets \
+    --filters "Name=tag:Name,Values=PublicSubnet1" \
+    --query "Subnets[0].SubnetId" --output text)
+
+echo "Public Subnet 1 ID: $SUBNET_PUBLIC_A"
+
+echo "Retrieving Public Subnet 2 ID..."
+SUBNET_PUBLIC_B=$(aws ec2 describe-subnets \
+    --filters "Name=tag:Name,Values=PublicSubnet2" \
+    --query "Subnets[0].SubnetId" --output text)
+
+echo "Public Subnet 2 ID: $SUBNET_PUBLIC_B"
+
+# Step 3: Retrieve Private Subnet IDs
+echo "Retrieving Private Subnet 1 ID..."
+SUBNET_PRIVATE_A=$(aws ec2 describe-subnets \
+    --filters "Name=tag:Name,Values=PrivateSubnet1" \
+    --query "Subnets[0].SubnetId" --output text)
+
+echo "Private Subnet 1 ID: $SUBNET_PRIVATE_A"
+
+echo "Retrieving Private Subnet 2 ID..."
+SUBNET_PRIVATE_B=$(aws ec2 describe-subnets \
+    --filters "Name=tag:Name,Values=PrivateSubnet2" \
+    --query "Subnets[0].SubnetId" --output text)
+
+echo "Private Subnet 2 ID: $SUBNET_PRIVATE_B"
+
+# Step 4: Retrieve Internet Gateway ID
+echo "Retrieving Internet Gateway ID..."
+IGW_ID=$(aws ec2 describe-internet-gateways \
+    --filters "Name=tag:Name,Values=LabIGW" \
+    --query "InternetGateways[0].InternetGatewayId" --output text)
+
+echo "Internet Gateway ID: $IGW_ID"
+
+# Step 5: Retrieve NAT Gateway ID
+echo "Retrieving NAT Gateway ID..."
+NAT_GW_ID=$(aws ec2 describe-nat-gateways \
+    --filter "Name=subnet-id,Values=$SUBNET_PUBLIC_A" \
+    --query "NatGateways[0].NatGatewayId" --output text)
+
+echo "NAT Gateway ID: $NAT_GW_ID"
+
 # Step 5 - Route Tables Configuration
 
 # 5.1. Create a route table for public subnets
